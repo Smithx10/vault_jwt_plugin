@@ -1,6 +1,7 @@
 package josejwt
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -56,7 +57,7 @@ var createTokenSchema = map[string]*framework.FieldSchema{
 }
 
 // Provides basic token validation for a provided jwt token
-func (backend *JwtBackend) validateToken(req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (backend *JwtBackend) validateToken(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	byteToken := []byte(data.Get("token").(string))
 	token, err := jws.ParseJWT(byteToken)
 
@@ -176,7 +177,7 @@ func contains(array []string, value string) bool {
 }
 
 // create the basic jwt token with an expiry within the claim
-func (backend *JwtBackend) createToken(req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (backend *JwtBackend) createToken(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	// use the IAM role from the authentication
 	roleName := getRoleName(req.DisplayName)
 

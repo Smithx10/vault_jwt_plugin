@@ -13,7 +13,7 @@ func (backend *JwtBackend) storageSetItem(storage logical.Storage, path string, 
 		return fmt.Errorf("Error converting entry to JSON: %#v", err)
 	}
 
-	if err := storage.Put(entry); err != nil {
+	if err := storage.Put(backend.ctx, entry); err != nil {
 		return fmt.Errorf("Error saving item: %#v", err)
 	}
 

@@ -25,14 +25,14 @@ func (backend *JwtBackend) secretLock(secretID string) *locksutil.LockEntry {
 
 func (backend *JwtBackend) tidySecretEntries(storage logical.Storage) error {
 	// enumerate over all the secrets and remove any that are out of date
-	roles, err := storage.List("secrets")
+	roles, err := storage.List(backend.ctx, "secrets")
 	if err != nil {
 		return fmt.Errorf("tidySecretEntries - Unable to retreive the Roles")
 	}
 
 	// TODO : clean this up, nested for loops are always nasty
 	for _, role := range roles {
-		secrets, err := storage.List(fmt.Sprintf("secrets/%s", role))
+		secrets, err := storage.List(backend.ctx, fmt.Sprintf("secrets/%s", role))
 		if err != nil {
 			return fmt.Errorf("tidySecretEntries - Unable to retrieve the Secrets")
 		}
@@ -161,7 +161,7 @@ func (backend *JwtBackend) getSecretEntry(storage logical.Storage, roleID string
 	}
 
 	var result secretStorageEntry
-	if entry, err := storage.Get(fmt.Sprintf("secrets/%s/%s", roleID, secretID)); err != nil {
+	if entry, err := storage.Get(backend.ctx, fmt.Sprintf("secrets/%s/%s", roleID, secretID)); err != nil {
 		return nil, err
 	} else if entry == nil {
 		return nil, nil
@@ -192,7 +192,7 @@ func (backend *JwtBackend) setSecretEntry(storage logical.Storage, entry *secret
 		return fmt.Errorf("Error converting entry to JSON: %#v", err)
 	}
 
-	if err := storage.Put(json); err != nil {
+	if err := storage.Put(backend.ctx, json); err != nil {
 		return fmt.Errorf("Error saving secret: %#v", err)
 	}
 	return nil
@@ -212,5 +212,5 @@ func (backend *JwtBackend) deleteSecretEntry(storage logical.Storage, roleID str
 	lock.RLock()
 	defer lock.RUnlock()
 
-	return storage.Delete(fmt.Sprintf("secrets/%s/%s", roleID, secretID))
+	return storage.Delete(backend.ctx, fmt.Sprintf("secrets/%s/%s", roleID, secretID))
 }

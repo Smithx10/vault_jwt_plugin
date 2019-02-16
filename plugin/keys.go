@@ -39,7 +39,7 @@ func (backend *JwtBackend) getKeyEntry(storage logical.Storage, keyName string) 
 	defer lock.RUnlock()
 
 	var result KeyStorageEntry
-	if entry, err := storage.Get(fmt.Sprintf("keys/%s", keyName)); err != nil {
+	if entry, err := storage.Get(backend.ctx, fmt.Sprintf("keys/%s", keyName)); err != nil {
 		return nil, err
 	} else if entry == nil {
 		return nil, nil
@@ -71,7 +71,7 @@ func (backend *JwtBackend) setKeyEntry(storage logical.Storage, key KeyStorageEn
 		return fmt.Errorf("Error converting key to JSON: %#v", err)
 	}
 
-	if err := storage.Put(entry); err != nil {
+	if err := storage.Put(backend.ctx, entry); err != nil {
 		return fmt.Errorf("Error saving key: %#v", err)
 	}
 

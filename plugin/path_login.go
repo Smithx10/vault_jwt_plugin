@@ -1,6 +1,7 @@
 package josejwt
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -23,7 +24,7 @@ var loginSchema = map[string]*framework.FieldSchema{
 }
 
 // Login for the role using a pre-assigned password.
-func (backend *JwtBackend) authLoginLocal(req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (backend *JwtBackend) authLoginLocal(_ context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 
 	roleName := data.Get("role-name").(string)
 	password := data.Get("password").(string)

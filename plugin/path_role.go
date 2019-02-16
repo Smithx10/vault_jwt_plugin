@@ -1,6 +1,7 @@
 package josejwt
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -64,7 +65,7 @@ var createRoleSchema = map[string]*framework.FieldSchema{
 }
 
 // remove the specified role from the storage
-func (backend *JwtBackend) removeRole(req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (backend *JwtBackend) removeRole(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	roleName := data.Get("name").(string)
 	if roleName == "" {
 		return logical.ErrorResponse("Unable to remove, missing role name"), nil
@@ -91,7 +92,7 @@ func (backend *JwtBackend) removeRole(req *logical.Request, data *framework.Fiel
 }
 
 // read the current role from the inputs and return it if it exists
-func (backend *JwtBackend) readRole(req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (backend *JwtBackend) readRole(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	roleName := data.Get("name").(string)
 	role, err := backend.getRoleEntry(req.Storage, roleName)
 	if err != nil {
@@ -108,7 +109,7 @@ func (backend *JwtBackend) readRole(req *logical.Request, data *framework.FieldD
 
 // create the role within plugin, this will provide the access for applications
 // to be able to create tokens down the line
-func (backend *JwtBackend) createRole(req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (backend *JwtBackend) createRole(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	roleName := data.Get("name").(string)
 	if roleName == "" {
 		return logical.ErrorResponse("Role name not supplied"), nil

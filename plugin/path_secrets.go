@@ -1,11 +1,13 @@
 package josejwt
 
 import (
+	"context"
+
 	"github.com/hashicorp/vault/logical"
 	"github.com/hashicorp/vault/logical/framework"
 )
 
-func (backend *JwtBackend) tidySecrets(req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (backend *JwtBackend) tidySecrets(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	err := backend.tidySecretEntries(req.Storage)
 	if err != nil {
 		return logical.ErrorResponse("tidySecrets - Unable to tidy the secrets"), err

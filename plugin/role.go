@@ -61,7 +61,7 @@ func (backend *JwtBackend) setRoleEntry(storage logical.Storage, role RoleStorag
 		return fmt.Errorf("Error converting entry to JSON: %#v", err)
 	}
 
-	if err := storage.Put(entry); err != nil {
+	if err := storage.Put(backend.ctx, entry); err != nil {
 		return fmt.Errorf("Error saving role: %#v", err)
 	}
 
@@ -79,7 +79,7 @@ func (backend *JwtBackend) deleteRoleEntry(storage logical.Storage, roleName str
 	lock.RLock()
 	defer lock.RUnlock()
 
-	return storage.Delete(fmt.Sprintf("role/%s", roleName))
+	return storage.Delete(backend.ctx, fmt.Sprintf("role/%s", roleName))
 }
 
 // getRoleEntry grabs the read lock and fetches the options of an role from the storage
@@ -90,7 +90,7 @@ func (backend *JwtBackend) getRoleEntry(storage logical.Storage, roleName string
 	roleName = strings.ToLower(roleName)
 
 	var result RoleStorageEntry
-	if entry, err := storage.Get(fmt.Sprintf("role/%s", roleName)); err != nil {
+	if entry, err := storage.Get(backend.ctx, fmt.Sprintf("role/%s", roleName)); err != nil {
 		return nil, err
 	} else if entry == nil {
 		return nil, nil

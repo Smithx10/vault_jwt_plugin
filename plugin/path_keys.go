@@ -1,6 +1,7 @@
 package josejwt
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/fatih/structs"
@@ -42,7 +43,7 @@ func (backend *JwtBackend) keyLock(keyName string) *locksutil.LockEntry {
 	return locksutil.LockForKey(backend.keyLocks, keyName)
 }
 
-func (backend *JwtBackend) createUpdateKey(req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (backend *JwtBackend) createUpdateKey(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	keyName := data.Get("name").(string)
 	key, err := backend.getKeyEntry(req.Storage, keyName)
 	if err != nil {
@@ -61,7 +62,7 @@ func (backend *JwtBackend) createUpdateKey(req *logical.Request, data *framework
 	return &logical.Response{}, nil
 }
 
-func (backend *JwtBackend) readKey(req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (backend *JwtBackend) readKey(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	keyName := data.Get("name").(string)
 
 	key, err := backend.getKeyEntry(req.Storage, keyName)

@@ -1,6 +1,7 @@
 package josejwt
 
 import (
+	"context"
 	"log"
 	"os"
 	"sync"
@@ -18,6 +19,8 @@ type JwtBackend struct {
 	*framework.Backend
 	view logical.Storage
 
+	ctx context.Context
+
 	// The salt value to be used by the information to be accessed only
 	// by this backend.
 	salt      *salt.Salt
@@ -33,9 +36,9 @@ type JwtBackend struct {
 }
 
 // Factory returns a new backend as logical.Backend.
-func Factory(conf *logical.BackendConfig) (logical.Backend, error) {
-	b := Backend(conf)
-	if err := b.Setup(conf); err != nil {
+func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend, error) {
+	b := Backend(ctx, conf)
+	if err := b.Setup(ctx, conf); err != nil {
 		return nil, err
 	}
 	return b, nil
@@ -54,7 +57,7 @@ func (backend *JwtBackend) Salt() (*salt.Salt, error) {
 	if backend.salt != nil {
 		return backend.salt, nil
 	}
-	salt, err := salt.NewSalt(backend.view, &salt.Config{
+	salt, err := salt.NewSalt(backend.ctx, backend.view, &salt.Config{
 		HashFunc: salt.SHA256Hash,
 		Location: salt.DefaultLocation,
 	})
@@ -66,7 +69,7 @@ func (backend *JwtBackend) Salt() (*salt.Salt, error) {
 }
 
 // reset the salt
-func (backend *JwtBackend) invalidate(key string) {
+func (backend *JwtBackend) invalidate(ctx context.Context, key string) {
 	switch key {
 	case salt.DefaultLocation:
 		backend.saltMutex.Lock()
@@ -75,14 +78,15 @@ func (backend *JwtBackend) invalidate(key string) {
 	}
 }
 
-func (backend *JwtBackend) pathAuthRenew(req *logical.Request, d *framework.FieldData) (*logical.Response, error) {
+func (backend *JwtBackend) pathAuthRenew(ctx context.Context, req *logical.Request, d *framework.FieldData) (*logical.Response, error) {
 	// TODO
 	return nil, nil
 }
 
 // Backend export the function to create backend and configure
-func Backend(conf *logical.BackendConfig) *JwtBackend {
+func Backend(ctx context.Context, conf *logical.BackendConfig) *JwtBackend {
 	backend := &JwtBackend{
+		ctx:         ctx,
 		view:        conf.StorageView,
 		roleLocks:   locksutil.CreateLocks(),
 		secretLocks: locksutil.CreateLocks(),

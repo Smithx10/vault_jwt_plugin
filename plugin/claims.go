@@ -28,12 +28,12 @@ func setTokenClaims(backend *JwtBackend, storage logical.Storage, name string, c
 		return err
 	}
 
-	return storage.Put(entry)
+	return storage.Put(backend.ctx, entry)
 }
 
 // Get the set of claims by the name provided
 func getTokenClaims(backend *JwtBackend, storage logical.Storage, name string) (*TokenClaims, error) {
-	entry, err := storage.Get(fmt.Sprintf("claims/%s", name))
+	entry, err := storage.Get(backend.ctx, fmt.Sprintf("claims/%s", name))
 	if err != nil {
 		return nil, err
 	}
@@ -55,5 +55,5 @@ func removeTokenClaims(backend *JwtBackend, storage logical.Storage, name string
 		return fmt.Errorf("Claim name is required")
 	}
 
-	return storage.Delete(fmt.Sprintf("claims/%s", name))
+	return storage.Delete(backend.ctx, fmt.Sprintf("claims/%s", name))
 }
